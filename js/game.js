@@ -17,8 +17,44 @@ const player = new Player({
   color: '#48FCFF'
 });
 
-let projectiles = [];
 const shootingSpeed = 4;
+
+let projectiles = [];
+let enemies = [];
+let intervalID; 
+
+function spawnEnemies() {
+  intervalID = setInterval(() => {
+    const radius = Math.floor(Math.random() * 26) + 5;
+
+    let posX, posY;
+    if (Math.random() < .5) {
+      posX = Math.random() < .5 ? 0 - radius : cnv.width + radius;
+      posY = Math.random() * cnv.height;
+    } else {
+      posX = Math.random() * cnv.width;
+      posY = Math.random() < .5 ? 0 - radius : cnv.height + radius;
+    }
+
+    const angle = Math.atan2(player.position.y - posY, player.position.x - posX);
+    const velocity = {
+      x: Math.cos(angle),
+      y: Math.sin(angle)
+    };
+
+    const color = 'hsl('+ Math.random() * 360 +', 50%, 50%)';
+
+    enemies.push(new Enemy({
+      position: {
+        x: posX,
+        y: posY
+      },
+      radius: radius,
+      color: color,
+      velocity: velocity
+    }))
+  }, 1500);
+}
 
 cnv.addEventListener('click', (e) => {
   e.preventDefault();
@@ -56,6 +92,7 @@ function update() {
   ctx.fillStyle = 'rgba(0, 0, 0, .1)';
   ctx.fillRect(0, 0, cnv.width, cnv.height);
 
+  checkEnemies();
   checkProjectiles();
   player.update();
 }
@@ -79,4 +116,11 @@ function checkOffScreen(projectile, index) {
   }
 }
 
+function checkEnemies() {
+  enemies.forEach((enemy) => {
+    enemy.update();
+  })
+}
+
 animate();
+spawnEnemies();
