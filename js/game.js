@@ -21,7 +21,7 @@ const shootingSpeed = 4;
 
 let projectiles = [];
 let enemies = [];
-let intervalID; 
+let intervalID;
 
 function spawnEnemies() {
   intervalID = setInterval(() => {
@@ -42,7 +42,7 @@ function spawnEnemies() {
       y: Math.sin(angle)
     };
 
-    const color = 'hsl('+ Math.random() * 360 +', 50%, 50%)';
+    const color = 'hsl(' + Math.random() * 360 + ', 50%, 50%)';
 
     enemies.push(new Enemy({
       position: {
@@ -101,8 +101,17 @@ function checkProjectiles() {
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const p = projectiles[i];
     p.update();
-
     checkOffScreen(p, i);
+
+    for (let eIndex = enemies.length - 1; eIndex >= 0; eIndex--) {
+      const enemy = enemies[eIndex];
+      const distance = Math.hypot(p.position.x - enemy.position.x, p.position.y - enemy.position.y);
+
+      if (distance < p.radius + enemy.radius) {
+        enemies.splice(eIndex, 1);
+        projectiles.splice(i, 1);
+      }
+    }
   }
 }
 
@@ -119,6 +128,11 @@ function checkOffScreen(projectile, index) {
 function checkEnemies() {
   enemies.forEach((enemy) => {
     enemy.update();
+
+    const distance = Math.hypot(player.position.x - enemy.position.x, player.position.y - enemy.position.y);
+    if (distance < player.radius + enemy.radius) {
+      alert('Game Over');
+    }
   })
 }
 
